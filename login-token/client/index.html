@@ -48,9 +48,47 @@
       const appKey = "loginWithToken";
       let user, token;
 
-      function init() {}
-      function setForm() {}
-      function setMain() {}
+      init();
+
+      btnLogin.addEventListener("click", async (e) => {
+        const API = "http://localhost:3000/api/users/login";
+        const accountInput = document.querySelector(
+          "input[name=account]"
+        ).value;
+        const passwordInput = document.querySelector(
+          "input[name=password]"
+        ).value;
+        const formData = new FormData();
+        formData.append("account", accountInput);
+        formData.append("password", passwordInput);
+
+        const res = await fetch(API, {
+          method: "POST",
+          body: formData,
+        });
+        const result = await res.json();
+        token = result.data;
+        user = jwt_decode(token);
+        localStorage.setItem(appKey, token);
+        setMain();
+      });
+      btnLogout.addEventListener("click", (e) => {});
+
+      function init() {
+        setForm();
+      }
+      function setForm() {
+        form.classList.remove("d-none");
+        main.classList.add("d-none");
+      }
+      function setMain() {
+        h1.textContent = user.name;
+        account.textContent = user.account;
+        img.src = user.head;
+        mail.textContent = user.mail;
+        main.classList.remove("d-none");
+        form.classList.add("d-none");
+      }
     </script>
   </body>
 </html>
