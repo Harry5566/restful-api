@@ -1,0 +1,25 @@
+{
+  "name": "token",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "sign": "node --env-file=ben.env sign.js",
+    "verify": "node --env-file=ben.env verify.js",
+    "sign2": "node sign.js benben56789",
+    "verify2": "node verify.js benben56789"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.30.1",
+    "multer": "^2.0.2"
+  }
+}
