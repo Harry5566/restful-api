@@ -3,9 +3,54 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/bs/css/bootstrap.css" />
     <title>使用者登入</title>
   </head>
   <body>
-    <h1>使用者登入</h1>
+    <div class="container">
+      <div class="form mt-2 d-none" action="">
+        <div class="input-group mb-2">
+          <span class="input-group-text">帳號</span>
+          <input type="text" name="account" class="form-control" />
+        </div>
+        <div class="input-group mb-2">
+          <span class="input-group-text">帳號</span>
+          <input type="password" name="password" class="form-control" />
+        </div>
+        <div class="d-flex">
+          <div class="btn btn-primary ms-auto btn-login">送出</div>
+        </div>
+      </div>
+      <div class="main d-none">
+        <h1>NAME HERE</h1>
+        <section class="user mb-3">
+          <div class="head">
+            <img src="" alt="head img here" />
+          </div>
+          <div class="account fs-3">account here</div>
+          <div class="mail">mail here</div>
+          <div class="d-flex">
+            <div class="btn btn-primary ms-auto btn-logout">登出</div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <script>
+      const btnLogin = document.querySelector(".btn-login");
+      const btnLogout = document.querySelector(".btn-logout");
+      const form = document.querySelector(".form");
+      const main = document.querySelector(".main");
+      const h1 = document.querySelector(".main h1");
+      const img = document.querySelector(".main img");
+      const account = document.querySelector(".main .account");
+      const mail = document.querySelector(".main .mail");
+      const appKey = "loginWithToken";
+      let user, token;
+
+      function init() {}
+      function setForm() {}
+      function setMain() {}
+    </script>
   </body>
 </html>

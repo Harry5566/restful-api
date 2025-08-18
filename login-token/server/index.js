@@ -8,11 +8,15 @@ const secretKey = process.env.SECRET_KEY;
 
 const upload = multer();
 
-const whitList = ["http://localhost:3005", "http://127.0.0.1:3005"];
+const whiteList = [
+  "http://localhost:3000",
+  "http://localhost:3005",
+  "http://127.0.0.1:3005",
+];
 const corsOptions = {
   credentials: true,
   origin(origin, cb) {
-    if (!origin || whitList.includes(origin)) {
+    if (!origin || whiteList.includes(origin)) {
       cb(null, true);
     } else {
       cb(new Error("不允許傳遞資料"));
@@ -34,6 +38,8 @@ app.post("/api/users/login", upload.none(), (req, res) => {
   const user = users.find(
     (u) => u.account == account && u.password == password
   );
+  // console.log(user);
+
   if (!user) {
     return res.status(400).json({
       status: "error",
@@ -50,7 +56,6 @@ app.post("/api/users/login", upload.none(), (req, res) => {
     secretKey,
     { expiresIn: "30m" }
   );
-
   res.status(200).json({
     status: "success",
     message: "登入成功",
@@ -58,17 +63,80 @@ app.post("/api/users/login", upload.none(), (req, res) => {
   });
 });
 
-app.post("/api/users/logout", (req, res) => {
-  const token = req.get("Authorization");
-  console.log(token);
-
-  res.status(200).json({ message: "登出成功" });
+app.post("/api/users/logout", checkToken, (req, res) => {
+  const { account } = req.decoded;
+  const user = users.find((u) => u.account == account);
+  if (!user) {
+    return res.status(401).json({
+      status: "error",
+      message: "登出失敗",
+    });
+  }
+  const token = jwt.sign(
+    {
+      message: "過期的token",
+    },
+    secretKey,
+    { expiresIn: "-10s" }
+  );
+  res.status(200).json({
+    status: "success",
+    message: "登出成功",
+    data: token,
+  });
 });
 
-app.post("/api/users/status", (req, res) => {
-  res.status(200).json({ message: "狀態: 登入" });
+app.post("/api/users/status", checkToken, (req, res) => {
+  const { account } = req.decoded;
+  const user = users.find((u) => u.account == account);
+  if (!user) {
+    return res.status(401).json({
+      status: "error",
+      message: "請登入",
+    });
+  }
+  const token = jwt.sign(
+    {
+      account: user.account,
+      name: user.name,
+      mail: user.mail,
+      head: user.head,
+    },
+    secretKey,
+    { expiresIn: "30m" }
+  );
+  res.status(200).json({
+    status: "success",
+    message: "處於登入狀態",
+    data: token,
+  });
 });
 
 app.listen(3000, () => {
   console.log("主機已啟動於 http://localhost:3000");
 });
+
+function checkToken(req, res, next) {
+  let token = req.get("Authorization");
+  console.log(token);
+  if (token && token.includes("Bearer ")) {
+    token = token.slice(7);
+    jwt.verify(token, secretKey, (error, decoded) => {
+      if (error) {
+        console.log(error);
+        res.status(401).json({
+          status: "error",
+          message: "登入驗證失效，請重新登入",
+        });
+        return;
+      }
+      req.decoded = decoded;
+      next();
+    });
+  } else {
+    res.status(401).json({
+      status: "error",
+      message: "無登入驗證資料，請重新登入",
+    });
+  }
+}
