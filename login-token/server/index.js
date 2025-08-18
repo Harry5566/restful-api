@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import multer from "multer";
 import jwt from "jsonwebtoken";
+import connection from "./connect.js";
 import users from "./user.js";
 
 const secretKey = process.env.SECRET_KEY;
@@ -33,11 +34,16 @@ app.get("/", (req, res) => {
   res.send("首頁");
 });
 
-app.post("/api/users/login", upload.none(), (req, res) => {
+app.post("/api/users/login", upload.none(), async (req, res) => {
   const { account, password } = req.body;
-  const user = users.find(
-    (u) => u.account == account && u.password == password
-  );
+  // const user = users.find(
+  //   (u) => u.account == account && u.password == password
+  // );
+  const user = await connection
+    .execute("SELECT * FROM `users` WHERE `account` = ?", [account])
+    .then(([result]) => {
+      return result[0];
+    });
   // console.log(user);
 
   if (!user) {

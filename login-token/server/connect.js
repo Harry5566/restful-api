@@ -8,21 +8,4 @@ const connection = mysql.createPool({
   database: "restful",
 });
 
-// const [results] = await connection.execute("SELECT * FROM users");
-
-// console.log(results);
-
-// const [result] = await connection.execute(
-//   "SELECT * FROM `users` WHERE `account` = ?",
-//   ["ben"]
-// );
-
-// console.log(result);
-
-const result = await connection
-  .execute("SELECT * FROM `users` WHERE `account` = ?", ["ben"])
-  .then(([result]) => {
-    return result[0];
-  });
-
-console.log(result);
+export default connection;
