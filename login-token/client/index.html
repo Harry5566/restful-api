@@ -72,10 +72,53 @@
         localStorage.setItem(appKey, token);
         setMain();
       });
-      btnLogout.addEventListener("click", (e) => {});
+      btnLogout.addEventListener("click", async (e) => {
+        token = localStorage.getItem(appKey);
+        if (token) {
+          const API = "http://localhost:3000/api/users/logout";
+          const res = await fetch(API, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const result = await res.json();
+          alert(result.message);
+          if (result.status == "success") {
+            token = result.data;
+            user = jwt_decode(token);
+            localStorage.setItem(appKey, token);
+            setForm();
+          } else {
+            setForm();
+          }
+        } else {
+          setForm();
+        }
+      });
 
-      function init() {
-        setForm();
+      async function init() {
+        token = localStorage.getItem(appKey);
+        if (token) {
+          const API = "http://localhost:3000/api/users/status";
+          const res = await fetch(API, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          const result = await res.json();
+          if (result.status == "success") {
+            token = result.data;
+            user = jwt_decode(token);
+            localStorage.setItem(appKey, token);
+            setMain();
+          } else {
+            setForm();
+          }
+        } else {
+          setForm();
+        }
       }
       function setForm() {
         form.classList.remove("d-none");
