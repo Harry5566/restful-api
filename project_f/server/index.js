@@ -67,7 +67,7 @@ app.put("/api/users/:id", (req, res) => {
 });
 
 // 刪除(特定 ID)使用者
-app.delete("/api/user/:id", (req, res) => {
+app.delete("/api/users/:id", (req, res) => {
   const id = req.params.id;
   res.status(200).json({
     status: "success",
@@ -85,6 +85,35 @@ app.get("/api/users/search", (req, res) => {
   });
 });
 
+// 使用者登入
+app.post("/api/users/login", upload.none(), (req, res) => {
+  const { account, password } = req.body;
+  res.status(200).json({
+    status: "success",
+    data: "token",
+  });
+});
+
+// 使用者登出
+app.post("/api/users/logout", checkToken, (req, res) => {
+  res.status(200).json({
+    status: "success",
+    data: "token",
+  });
+});
+
+// 檢查登入狀態
+app.post("/api/users/status", checkToken, (req, res) => {
+  res.status(200).json({
+    status: "success",
+    data: "token",
+  });
+});
+
 app.listen(3005, () => {
   console.log("主機啟動 http://localhost:3005");
 });
+
+function checkToken(req, res, next) {
+  next();
+}
