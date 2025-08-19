@@ -35,6 +35,7 @@ app.get("/api/users", (req, res) => {
   res.status(200).json({
     status: "success",
     data: [],
+    message: "已獲取所有使用者",
   });
 });
 
@@ -45,16 +46,17 @@ app.get("/api/users/:id", (req, res) => {
   res.status(200).json({
     status: "success",
     data: { id }, // {id: id}(不省略版),
+    message: `已獲取 ${id} 使用者`,
   });
 });
 
 // 新增一個使用者
 app.post("/api/users", (req, res) => {
-  res.status(201),
-    json({
-      status: "success",
-      data: {},
-    });
+  res.status(201).json({
+    status: "success",
+    data: {},
+    message: "新增一個使用者 成功",
+  });
 });
 
 // 更新(特定 ID)的使用者
@@ -63,6 +65,7 @@ app.put("/api/users/:id", (req, res) => {
   res.status(200).json({
     status: "success",
     data: { id },
+    message: "更新一個使用者 成功",
   });
 });
 
@@ -72,6 +75,7 @@ app.delete("/api/users/:id", (req, res) => {
   res.status(200).json({
     status: "success",
     data: { id },
+    message: "刪除一個使用者 成功",
   });
 });
 
