@@ -1,11 +1,12 @@
 import express from "express";
 import multer from "multer";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import mysql from "mysql2/promise";
 import connection from "../connect.js";
 
 const upload = multer();
-
+const secretKey = process.env.JWT_SECRET_KEY;
 const router = express.Router();
 
 // route(s) 路由規則(們)
@@ -136,12 +137,37 @@ router.delete("/:id", (req, res) => {
 });
 
 // 使用者登入
-router.post("/login", upload.none(), (req, res) => {
+router.post("/login", upload.none(), async (req, res) => {
   const { account, password } = req.body;
+
+  const user = await connection
+    .execute("SELECT * FROM `users` WHERE `account` = ?", [account])
+    .then(([result]) => {
+      return result[0];
+    });
+
+  console.log(user);
+
+  if (!user) {
+    return res.status(400).json({
+      status: "error",
+      message: "帳號或密碼錯誤",
+    });
+  }
+
+  const token = jwt.sign(
+    {
+      account: user.account,
+      mail: user.mail,
+      head: user.head,
+    },
+    secretKey,
+    { expiresIn: "30m" }
+  );
   res.status(200).json({
     status: "success",
-    data: "token",
-    message: "使用者登入 成功",
+    message: "登入成功",
+    data: token,
   });
 });
 
@@ -164,9 +190,29 @@ router.post("/status", checkToken, (req, res) => {
 });
 
 function checkToken(req, res, next) {
-  next();
+  let token = req.get("Authorization");
+  console.log(token);
+  if (token && token.includes("Bearer ")) {
+    token = token.slice(7);
+    jwt.verify(token, secretKey, (error, decoded) => {
+      if (error) {
+        console.log(error);
+        res.status(401).json({
+          status: "error",
+          message: "登入驗證失效，請重新登入",
+        });
+        return;
+      }
+      req.decoded = decoded;
+      next();
+    });
+  } else {
+    res.status(401).json({
+      status: "error",
+      message: "無登入驗證資料，請重新登入",
+    });
+  }
 }
-
 async function getRandomAvatar() {
   const API = "https://randomuser.me/api";
   try {
