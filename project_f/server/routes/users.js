@@ -243,12 +243,51 @@ router.post("/logout", checkToken, async (req, res) => {
 });
 
 // 檢查登入狀態
-router.post("/status", checkToken, (req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: "token",
-    message: "狀態成功",
-  });
+router.post("/status", checkToken, async (req, res) => {
+  try {
+    const { account } = req.decoded;
+
+    // 檢查 account 有沒有使用過
+    const sqlCheck1 = "SELECT * FROM `users` WHERE `account` = ?;";
+    let user = await connection
+      .execute(sqlCheck1, [account])
+      .then(([result]) => {
+        return result[0];
+      });
+
+    if (!user) {
+      const err = new Error("請登入");
+      err.code = 401;
+      err.status = "error";
+      throw err;
+    }
+
+    const token = jwt.sign(
+      {
+        account: user.account,
+        mail: user.mail,
+        head: user.head,
+      },
+      secretKey,
+      { expiresIn: "30m" }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "處於登入狀態",
+      data: token,
+    });
+  } catch (error) {
+    // 捕獲錯誤
+    console.log(error);
+    const statusCode = error.code ?? 401;
+    const statusText = error.status ?? "error";
+    const message = error.message ?? "身分驗證錯誤，請洽管理人員";
+    res.status(statusCode).json({
+      status: statusText,
+      message, // message: message
+    });
+  }
 });
 
 function checkToken(req, res, next) {
