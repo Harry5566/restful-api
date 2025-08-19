@@ -40,28 +40,3 @@ app.use("/api/pds", productsRouter);
 app.listen(3005, () => {
   console.log("主機啟動 http://localhost:3005");
 });
-
-function checkToken(req, res, next) {
-  let token = req.get("Authorization");
-  console.log(token);
-  if (token && token.includes("Bearer ")) {
-    token = token.slice(7);
-    jwt.verify(token, secretKey, (error, decoded) => {
-      if (error) {
-        console.log(error);
-        res.status(401).json({
-          status: "error",
-          message: "登入驗證失效，請重新登入",
-        });
-        return;
-      }
-      req.decoded = decoded;
-      next();
-    });
-  } else {
-    res.status(401).json({
-      status: "error",
-      message: "無登入驗證資料，請重新登入",
-    });
-  }
-}

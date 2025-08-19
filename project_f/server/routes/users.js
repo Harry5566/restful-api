@@ -119,6 +119,7 @@ router.post("/", upload.none(), async (req, res) => {
       .then(([result]) => {
         return result[0];
       });
+
     if (user) {
       const err = new Error("提供的註冊內容已被使用1");
       err.code = 400;
@@ -126,11 +127,12 @@ router.post("/", upload.none(), async (req, res) => {
       throw err;
     }
 
-    // 檢查 account 有沒有使用過
+    // 檢查 mail 有沒有使用過
     const sqlCheck2 = "SELECT * FROM `users` WHERE `mail` = ?;";
     user = await connection.execute(sqlCheck2, [mail]).then(([result]) => {
       return result[0];
     });
+
     if (user) {
       const err = new Error("提供的註冊內容已被使用2");
       err.code = 400;
@@ -141,6 +143,7 @@ router.post("/", upload.none(), async (req, res) => {
     // 從 randomuser.me 取得一個使用者圖片
     const head = await getRandomAvatar();
     // pending 等待中 -> await
+    // 把密碼加密
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // 建立 SQL 語法
@@ -190,20 +193,21 @@ router.delete("/:id", (req, res) => {
 router.post("/login", upload.none(), async (req, res) => {
   try {
     const { account, password } = req.body;
+    console.log(account);
 
     const sqlCheck1 = "SELECT * FROM `users` WHERE `account` = ?";
-    const user = await connection
+    let user = await connection
       .execute(sqlCheck1, [account])
       .then(([result]) => {
         return result[0];
       });
 
-    console.log(user);
+    // console.log(user);
 
     if (!user) {
-      const err = new Error("帳號或密碼錯誤"); // Error 物件只能在小括號中自訂錯誤訊息
-      err.code = 400; // 利用物件的自訂屬性把 HTTP 狀態碼到 catch
-      err.status = "error"; // 利用物件的自訂屬性把 status 狀態碼到 catch
+      const err = new Error("帳號或密碼錯誤1");
+      err.code = 400;
+      err.status = "error";
       throw err;
       // return res.status(400).json({
       //   status: "error",
@@ -364,13 +368,17 @@ function checkToken(req, res, next) {
     });
   }
 }
+
 async function getRandomAvatar() {
   const API = "https://randomuser.me/api";
   try {
     const response = await fetch(API);
+
     if (!response.ok)
       throw new Error(`${response.status}: ${response.statusText}`);
+
     const result = await response.json();
+
     // https://randomuser.me/api 的 API JSON檔
     return result.results[0].picture.large;
   } catch (error) {
