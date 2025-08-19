@@ -43,29 +43,41 @@ router.get("/:id", (req, res) => {
 
 // 新增一個使用者
 router.post("/", upload.none(), async (req, res) => {
-  const { account, password, mail } = req.body;
-  console.log({ account, password, mail });
+  try {
+    const { account, password, mail } = req.body;
+    // console.log({ account, password, mail });
 
-  if (!account || !password || !mail) {
-    return res.status(400).json({
-      status: "fail",
-      message: "請提供完整的使用者資訊",
+    if (!account || !password || !mail) {
+      const err = new Error("請提供完整的使用者資訊");
+      err.code = 400;
+      err.status = "fail";
+      throw err;
+      // return res.status(400).json({
+      //   status: "fail",
+      //   message: "請提供完整的使用者資訊",
+      // });
+    }
+
+    const head = await getRandomAvatar();
+    // pending 等待中 -> await
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const sql =
+      "INSERT INTO `users` (account, password, mail, head) VALUES (?, ?, ?, ?);";
+    await connection.execute(sql, [account, hashedPassword, mail, head]);
+
+    res.status(201).json({
+      status: "success",
+      data: {},
+      message: "新增一個使用者 成功",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(error.code).json({
+      status: error.status,
+      message: error.message,
     });
   }
-
-  const head = await getRandomAvatar();
-  // pending 等待中 -> await
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  const sql =
-    "INSERT INTO `users` (account, password, mail, head) VALUES (?, ?, ?, ?);";
-  await connection.execute(sql, [account, hashedPassword, mail, head]);
-
-  res.status(201).json({
-    status: "success",
-    data: {},
-    message: "新增一個使用者 成功",
-  });
 });
 
 // 更新(特定 ID)的使用者
