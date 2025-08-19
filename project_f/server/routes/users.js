@@ -138,37 +138,61 @@ router.delete("/:id", (req, res) => {
 
 // 使用者登入
 router.post("/login", upload.none(), async (req, res) => {
-  const { account, password } = req.body;
+  try {
+    const { account, password } = req.body;
 
-  const user = await connection
-    .execute("SELECT * FROM `users` WHERE `account` = ?", [account])
-    .then(([result]) => {
-      return result[0];
+    const user = await connection
+      .execute("SELECT * FROM `users` WHERE `account` = ?", [account])
+      .then(([result]) => {
+        return result[0];
+      });
+
+    console.log(user);
+
+    if (!user) {
+      const err = new Error("帳號或密碼錯誤"); // Error 物件只能在小括號中自訂錯誤訊息
+      err.code = 400; // 利用物件的自訂屬性把 HTTP 狀態碼到 catch
+      err.status = "error"; // 利用物件的自訂屬性把 status 狀態碼到 catch
+      throw err;
+      // return res.status(400).json({
+      //   status: "error",
+      //   message: "帳號或密碼錯誤",
+      // });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      const err = new Error("帳號或密碼錯誤2");
+      err.code = 400;
+      err.status = "error";
+      throw err;
+    }
+
+    const token = jwt.sign(
+      {
+        account: user.account,
+        mail: user.mail,
+        head: user.head,
+      },
+      secretKey,
+      { expiresIn: "30m" }
+    );
+    res.status(200).json({
+      status: "success",
+      message: "登入成功",
+      data: token,
     });
-
-  console.log(user);
-
-  if (!user) {
-    return res.status(400).json({
-      status: "error",
-      message: "帳號或密碼錯誤",
+  } catch (error) {
+    // 捕獲錯誤
+    console.log(error);
+    const statusCode = error.code ?? 400;
+    const statusText = error.status ?? "error";
+    const message = error.message ?? "登入失敗，請洽管理人員";
+    res.status(statusCode).json({
+      status: statusText,
+      message, // message: message
     });
   }
-
-  const token = jwt.sign(
-    {
-      account: user.account,
-      mail: user.mail,
-      head: user.head,
-    },
-    secretKey,
-    { expiresIn: "30m" }
-  );
-  res.status(200).json({
-    status: "success",
-    message: "登入成功",
-    data: token,
-  });
 });
 
 // 使用者登出
