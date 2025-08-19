@@ -19,7 +19,7 @@ router.get("/", (req, res) => {
 // 搜尋使用者
 router.get("/search", (req, res) => {
   // 網址參數(查詢參數)會被整理到 req 中的 query 裡
-  const { key } = req.query;
+  const key = req.query.key;
   res.status(200).json({
     status: "success",
     data: { key },
