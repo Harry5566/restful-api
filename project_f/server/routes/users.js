@@ -141,8 +141,9 @@ router.post("/login", upload.none(), async (req, res) => {
   try {
     const { account, password } = req.body;
 
+    const sqlCheck1 = "SELECT * FROM `users` WHERE `account` = ?";
     const user = await connection
-      .execute("SELECT * FROM `users` WHERE `account` = ?", [account])
+      .execute(sqlCheck1, [account])
       .then(([result]) => {
         return result[0];
       });
@@ -196,12 +197,49 @@ router.post("/login", upload.none(), async (req, res) => {
 });
 
 // 使用者登出
-router.post("/logout", checkToken, (req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: "token",
-    message: "使用者登出 成功",
-  });
+router.post("/logout", checkToken, async (req, res) => {
+  try {
+    const { account } = req.decoded;
+
+    // 檢查 account 有沒有使用過
+    const sqlCheck1 = "SELECT * FROM `users` WHERE `account` = ?;";
+    let user = await connection
+      .execute(sqlCheck1, [account])
+      .then(([result]) => {
+        return result[0];
+      });
+
+    if (!user) {
+      const err = new Error("登出失敗");
+      err.code = 401;
+      err.status = "error";
+      throw err;
+    }
+
+    const token = jwt.sign(
+      {
+        message: "過期的token",
+      },
+      secretKey,
+      { expiresIn: "-10s" }
+    );
+
+    res.status(200).json({
+      status: "success",
+      message: "登出成功",
+      data: token,
+    });
+  } catch (error) {
+    // 捕獲錯誤
+    console.log(error);
+    const statusCode = error.code ?? 400;
+    const statusText = error.status ?? "error";
+    const message = error.message ?? "登出失敗，請洽管理人員";
+    res.status(statusCode).json({
+      status: statusText,
+      message, // message: message
+    });
+  }
 });
 
 // 檢查登入狀態
