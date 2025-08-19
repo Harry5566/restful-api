@@ -1,0 +1,1 @@
+INSERT INTO `users` (account,  password, mail, head) VALUES (?, ?, ?, ?);

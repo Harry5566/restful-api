@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import bcrypt from "bcrypt";
 import mysql from "mysql2/promise";
+import connection from "../connect.js";
 
 const upload = multer();
 
@@ -42,10 +43,10 @@ router.get("/:id", (req, res) => {
 
 // 新增一個使用者
 router.post("/", upload.none(), async (req, res) => {
-  const { account, name, password, mail } = req.body;
-  console.log({ account, name, password, mail });
+  const { account, password, mail } = req.body;
+  console.log({ account, password, mail });
 
-  if (!account || !name || !password || !mail) {
+  if (!account || !password || !mail) {
     return res.status(400).json({
       status: "fail",
       message: "請提供完整的使用者資訊",
@@ -55,7 +56,10 @@ router.post("/", upload.none(), async (req, res) => {
   const head = await getRandomAvatar();
   // pending 等待中 -> await
   const hashedPassword = await bcrypt.hash(password, 10);
-  console.log(hashedPassword);
+
+  const sql =
+    "INSERT INTO `users` (account, password, mail, head) VALUES (?, ?, ?, ?);";
+  await connection.execute(sql, [account, hashedPassword, mail, head]);
 
   res.status(201).json({
     status: "success",
