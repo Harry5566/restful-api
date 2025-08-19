@@ -5,6 +5,7 @@ import multer from "multer";
 import cors from "cors";
 import moment from "moment";
 import { v4 as uuidv4 } from "uuid";
+import usersRouter from "./routes/users.js";
 
 // 設定區
 const upload = multer();
@@ -30,89 +31,7 @@ app.get("/", (req, res) => {
   res.send("首頁");
 });
 
-// 獲取所有使用者
-app.get("/api/users", (req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: [],
-    message: "已獲取所有使用者",
-  });
-});
-
-// 獲取特定 ID 的使用者
-app.get("/api/users/:id", (req, res) => {
-  // 路由參數
-  const id = req.params.id;
-  res.status(200).json({
-    status: "success",
-    data: { id }, // {id: id}(不省略版),
-    message: `已獲取 ${id} 使用者`,
-  });
-});
-
-// 新增一個使用者
-app.post("/api/users", (req, res) => {
-  res.status(201).json({
-    status: "success",
-    data: {},
-    message: "新增一個使用者 成功",
-  });
-});
-
-// 更新(特定 ID)的使用者
-app.put("/api/users/:id", (req, res) => {
-  const id = req.params.id;
-  res.status(200).json({
-    status: "success",
-    data: { id },
-    message: "更新一個使用者 成功",
-  });
-});
-
-// 刪除(特定 ID)使用者
-app.delete("/api/users/:id", (req, res) => {
-  const id = req.params.id;
-  res.status(200).json({
-    status: "success",
-    data: { id },
-    message: "刪除一個使用者 成功",
-  });
-});
-
-// 搜尋使用者
-app.get("/api/users/search", (req, res) => {
-  // 網址參數(查詢參數)會被整理到 req 中的 query 裡
-  const key = req.query.key;
-  res.status(200).json({
-    status: "success",
-    data: { key },
-  });
-});
-
-// 使用者登入
-app.post("/api/users/login", upload.none(), (req, res) => {
-  const { account, password } = req.body;
-  res.status(200).json({
-    status: "success",
-    data: "token",
-  });
-});
-
-// 使用者登出
-app.post("/api/users/logout", checkToken, (req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: "token",
-  });
-});
-
-// 檢查登入狀態
-app.post("/api/users/status", checkToken, (req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: "token",
-  });
-});
+app.use("/api/users", usersRouter);
 
 app.listen(3005, () => {
   console.log("主機啟動 http://localhost:3005");
