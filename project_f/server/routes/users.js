@@ -12,12 +12,28 @@ const router = express.Router();
 // route(s) 路由規則(們)
 // routes routers (路由物件器)
 // 獲取所有使用者
-router.get("/", (req, res) => {
-  res.status(200).json({
-    status: "success",
-    data: [],
-    message: "已獲取所有使用者",
-  });
+router.get("/", async (req, res) => {
+  try {
+    // 檢查 account 有沒有使用過
+    const sql = "SELECT * FROM `users`;";
+    let [users] = await connection.execute(sql);
+
+    res.status(200).json({
+      status: "success",
+      data: users,
+      message: "已獲取所有使用者",
+    });
+  } catch (error) {
+    // 捕獲錯誤
+    console.log(error);
+    const statusCode = error.code ?? 401;
+    const statusText = error.status ?? "error";
+    const message = error.message ?? "身分驗證錯誤，請洽管理人員";
+    res.status(statusCode).json({
+      status: statusText,
+      message, // message: message
+    });
+  }
 });
 
 // 搜尋使用者
@@ -32,14 +48,48 @@ router.get("/search", (req, res) => {
 });
 
 // 獲取特定 ID 的使用者
-router.get("/:id", (req, res) => {
-  // 路由參數
-  const id = req.params.id;
-  res.status(200).json({
-    status: "success",
-    data: { id }, // {id: id}(不省略版),
-    message: `已獲取 ${id} 使用者`,
-  });
+router.get("/:id", async (req, res) => {
+  try {
+    // 路由參數
+    const account = req.params.id;
+    if (!account) {
+      const err = new Error("請提供使用者 ID");
+      err.code = 400;
+      err.status = "fail";
+      throw err;
+    }
+
+    const sqlCheck1 = "SELECT * FROM `users` WHERE `account` = ?;";
+    let user = await connection
+      .execute(sqlCheck1, [account])
+      .then(([result]) => {
+        return result[0];
+      });
+    if (!user) {
+      const err = new Error("找不到使用者");
+      err.code = 404;
+      err.status = "fail";
+      throw err;
+    }
+
+    const { id, password, ...data } = user;
+
+    res.status(200).json({
+      status: "success",
+      data: data,
+      message: "查詢成功",
+    });
+  } catch (error) {
+    // 捕獲錯誤
+    console.log(error);
+    const statusCode = error.code ?? 401;
+    const statusText = error.status ?? "error";
+    const message = error.message ?? "身分驗證錯誤，請洽管理人員";
+    res.status(statusCode).json({
+      status: statusText,
+      message, // message: message
+    });
+  }
 });
 
 // 新增一個使用者
