@@ -75,6 +75,16 @@ app.delete("/api/user/:id", (req, res) => {
   });
 });
 
+// 搜尋使用者
+app.get("/api/users/search", (req, res) => {
+  // 網址參數(查詢參數)會被整理到 req 中的 query 裡
+  const key = req.query.key;
+  res.status(200).json({
+    status: "success",
+    data: { key },
+  });
+});
+
 app.listen(3005, () => {
   console.log("主機啟動 http://localhost:3005");
 });
