@@ -1,5 +1,7 @@
 import express from "express";
 import multer from "multer";
+import bcrypt from "bcrypt";
+import mysql from "mysql2/promise";
 
 const upload = multer();
 
@@ -39,7 +41,22 @@ router.get("/:id", (req, res) => {
 });
 
 // 新增一個使用者
-router.post("/", (req, res) => {
+router.post("/", upload.none(), async (req, res) => {
+  const { account, name, password, mail } = req.body;
+  console.log({ account, name, password, mail });
+
+  if (!account || !name || !password || !mail) {
+    return res.status(400).json({
+      status: "fail",
+      message: "請提供完整的使用者資訊",
+    });
+  }
+
+  const head = await getRandomAvatar();
+  // pending 等待中 -> await
+  const hashedPassword = await bcrypt.hash(password, 10);
+  console.log(hashedPassword);
+
   res.status(201).json({
     status: "success",
     data: {},
@@ -97,6 +114,21 @@ router.post("/status", checkToken, (req, res) => {
 
 function checkToken(req, res, next) {
   next();
+}
+
+async function getRandomAvatar() {
+  const API = "https://randomuser.me/api";
+  try {
+    const response = await fetch(API);
+    if (!response.ok)
+      throw new Error(`${response.status}: ${response.statusText}`);
+    const result = await response.json();
+    // https://randomuser.me/api 的 API JSON檔
+    return result.results[0].picture.large;
+  } catch (error) {
+    console.log("getRandomAvatar", error.message);
+    return null;
+  }
 }
 
 export default router;
