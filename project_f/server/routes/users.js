@@ -44,13 +44,16 @@ router.get("/:id", (req, res) => {
 // 新增一個使用者
 router.post("/", upload.none(), async (req, res) => {
   try {
+    // 取得表單中的欄位內容
     const { account, password, mail } = req.body;
     // console.log({ account, password, mail });
 
+    // 檢查必填
     if (!account || !password || !mail) {
-      const err = new Error("請提供完整的使用者資訊");
-      err.code = 400;
-      err.status = "fail";
+      // 設定 Error 物件
+      const err = new Error("請提供完整的使用者資訊"); // Error 物件只能在小括號中自訂錯誤訊息
+      err.code = 400; // 利用物件的自訂屬性把 HTTP 狀態碼到 catch
+      err.status = "fail"; // 利用物件的自訂屬性把 status 狀態碼到 catch
       throw err;
       // return res.status(400).json({
       //   status: "fail",
@@ -58,10 +61,38 @@ router.post("/", upload.none(), async (req, res) => {
       // });
     }
 
+    // 檢查 account 有沒有使用過
+    const sqlCheck1 = "SELECT * FROM `users` WHERE `account` = ?;";
+    let user = await connection
+      .execute(sqlCheck1, [account])
+      .then(([result]) => {
+        return result[0];
+      });
+    if (user) {
+      const err = new Error("提供的註冊內容已被使用1");
+      err.code = 400;
+      err.status = "fail";
+      throw err;
+    }
+
+    // 檢查 account 有沒有使用過
+    const sqlCheck2 = "SELECT * FROM `users` WHERE `mail` = ?;";
+    user = await connection.execute(sqlCheck2, [mail]).then(([result]) => {
+      return result[0];
+    });
+    if (user) {
+      const err = new Error("提供的註冊內容已被使用2");
+      err.code = 400;
+      err.status = "fail";
+      throw err;
+    }
+
+    // 從 randomuser.me 取得一個使用者圖片
     const head = await getRandomAvatar();
     // pending 等待中 -> await
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 建立 SQL 語法
     const sql =
       "INSERT INTO `users` (account, password, mail, head) VALUES (?, ?, ?, ?);";
     await connection.execute(sql, [account, hashedPassword, mail, head]);
@@ -72,10 +103,14 @@ router.post("/", upload.none(), async (req, res) => {
       message: "新增一個使用者 成功",
     });
   } catch (error) {
+    // 捕獲錯誤
     console.log(error);
-    res.status(error.code).json({
-      status: error.status,
-      message: error.message,
+    const statusCode = error.code ?? 500;
+    const statusText = error.status ?? "error";
+    const message = error.message ?? "註冊失敗，請洽管理人員";
+    res.status(statusCode).json({
+      status: statusText,
+      message, // message: message
     });
   }
 });
