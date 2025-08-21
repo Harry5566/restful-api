@@ -7,11 +7,11 @@ import Login from "./_components/login";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Home() {
-  const {user} = useAuth();
+  const { user, isLoading } = useAuth();
 
-  return (
-    <div className="container py-3">
-      {user ? <Login /> : <Logout />}
-    </div>
-  );
+  if (isLoading) {
+    return <div className="container py-3">Loading...</div>;
+  }
+
+  return <div className="container py-3">{user ? <Login /> : <Logout />}</div>;
 }
