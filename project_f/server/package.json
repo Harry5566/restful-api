@@ -1,32 +1,32 @@
 {
   "_comment": "這個檔案就像是專案的身分證和購物清單！它記錄了專案的基本資料和需要的工具",
   
-  "name": "server",                    // 專案名稱：伺服器
-  "version": "1.0.0",                 // 版本號：1.0.0（第一版）
-  "main": "index.js",                 // 主要入口檔案：從index.js開始執行
-  "type": "module",                   // 使用現代的模組系統（ES6 modules）
+  "name": "server",              
+  "version": "1.0.0",        
+  "main": "index.js", 
+  "type": "module",
   
   "scripts": {
     "_comment": "這裡定義了可以執行的指令，就像快捷鍵一樣",
-    "test": "echo \"Error: no test specified\" && exit 1",  // 測試指令（目前還沒設定）
-    "dev": "nodemon --env-file=lu.env index.js"           // 開發模式：自動重啟伺服器
+    "test": "echo \"Error: no test specified\" && exit 1", 
+    "dev": "nodemon --env-file=lu.env index.js"     
   },
   
-  "keywords": [],        // 關鍵字（用來描述專案，目前是空的）
-  "author": "",         // 作者名稱（目前是空的）
-  "license": "ISC",     // 授權方式：ISC（一種開源授權）
-  "description": "",    // 專案描述（目前是空的）
+  "keywords": [],        
+  "author": "",         
+  "license": "ISC",     
+  "description": "",    
   
   "dependencies": {
     "_comment": "這裡列出了專案需要的所有工具包，就像購物清單",
-    "bcrypt": "^6.0.0",        // 密碼加密工具：保護使用者密碼安全
-    "cors": "^2.8.5",          // 跨域請求管理：決定哪些網站可以訪問我們的API
-    "express": "^5.1.0",       // 網站框架：建立伺服器的主要工具
-    "jsonwebtoken": "^9.0.2",  // JWT令牌工具：製作登入證明
-    "moment": "^2.30.1",       // 時間處理工具：處理日期和時間
-    "multer": "^2.0.2",        // 檔案上傳工具：處理使用者上傳的檔案
-    "mysql2": "^3.14.3",       // MySQL資料庫連接工具：與資料庫溝通
-    "nodemon": "^3.1.10",      // 自動重啟工具：程式碼改變時自動重新啟動伺服器
-    "uuid": "^11.1.0"          // 唯一ID生成工具：產生不會重複的編號
+    "bcrypt": "^6.0.0",        
+    "cors": "^2.8.5",         
+    "express": "^5.1.0",      
+    "jsonwebtoken": "^9.0.2",  
+    "moment": "^2.30.1",       
+    "multer": "^2.0.2",        
+    "mysql2": "^3.14.3",       
+    "nodemon": "^3.1.10",      
+    "uuid": "^11.1.0"          
   }
 }
