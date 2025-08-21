@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/use-auth";
 
 export default function Login() {
   const { user } = useAuth();
+  console.log(user);
 
   return (
     <>
