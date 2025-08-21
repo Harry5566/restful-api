@@ -461,7 +461,7 @@ function checkToken(req, res, next) {
   // 從請求標頭中取得登入証明
   // 就像是看來訪者有沒有帶身分證
   let token = req.get("Authorization");
-  console.log(token); // 在控制台顯示收到的証明，方便除錯
+  // console.log(token); // 在控制台顯示收到的証明，方便除錯
 
   // 檢查是否有証明，且是否以"Bearer "開頭（標準格式）
   if (token && token.includes("Bearer ")) {
