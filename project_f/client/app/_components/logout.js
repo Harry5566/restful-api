@@ -2,6 +2,8 @@
 
 import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
+import style from "@/styles/ben.module.sass";
+import style2 from "@/styles/may.module.sass";
 
 export default function Logout() {
   const [account, setAccount] = useState("");
@@ -15,9 +17,12 @@ export default function Logout() {
 
   return (
     <>
-      <h1>登出狀態</h1>
+      <h1>
+      <span className={style.color1}>登出</span>
+      <span className={style2.color1}>狀態</span>
+      </h1>
       <div className="input-group mb-2">
-        <span className="input-group-text">帳號</span>
+        <span className={`input-group-text ${style.color1}`}>帳號</span>
         <input
           type="text"
           name="account"

@@ -1,7 +1,6 @@
 "use client";
 
 import { useContext, createContext, useState } from "react";
-import jwt from "jsonwebtoken";
 
 const AuthContext = createContext(null);
 AuthContext.displayName = "AuthContext";
@@ -25,10 +24,11 @@ export function AuthProvider({ children }) {
       console.log(result);
 
       if (result.status == "success") {
-        console.log("成功");
-        
+        const token = result.data.token;
+        setUser(result.data.user);
+        localStorage.setItem(appKey, token);
       } else {
-        console.log("失敗");
+        alert(result.message);
       }
     } catch (error) {
       console.log(error);
