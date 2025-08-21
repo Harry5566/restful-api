@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, createContext, useState } from "react";
+import { useContext, createContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
 AuthContext.displayName = "AuthContext";
@@ -34,6 +34,40 @@ export function AuthProvider({ children }) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const API = "http://localhost:3005/api/users/status";
+    const token = localStorage.getItem(appKey);
+    if (!token) {
+      setUser(null);
+      return;
+    }
+    const checkToken = async () => {
+      try {
+        const res = await fetch(API, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const result = await res.json();
+
+        if (result.status == "success") {
+          const token = result.data.token;
+          setUser(result.data.user);
+          localStorage.setItem(appKey, token);
+        } else {
+          alert(result.message);
+        }
+      } catch (error) {
+        console.log(`解析 token 失敗 ${error.message}`);
+        setUser(null);
+        localStorage.removeItem(appKey);
+      }
+    };
+
+    checkToken();
+  }, []);
 
   return (
     <AuthContext.Provider value={{ user, login }}>

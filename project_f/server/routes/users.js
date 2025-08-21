@@ -429,11 +429,18 @@ router.post("/status", checkToken, async (req, res) => {
       { expiresIn: "30m" } // 新証明又可以用30分鐘
     );
 
+    const newUser = {
+      // 在証明上記錄使用者的基本資料
+      account: user.account, // 使用者帳號
+      mail: user.mail, // 使用者信箱
+      head: user.head, // 使用者頭像
+    };
+
     // 告訴使用者：「你還在登入狀態！」
     res.status(200).json({
       status: "success", // 狀態正常
       message: "處於登入狀態", // 確認訊息
-      data: token, // 給新的登入証明
+      data: { token, user: newUser }, // 給新的登入証明
     });
   } catch (error) {
     // 捕獲錯誤
