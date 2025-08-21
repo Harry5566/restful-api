@@ -1,13 +1,16 @@
 "use client";
 
+import { useAuth } from "@/hooks/use-auth";
 import { useState } from "react";
 
 export default function Logout() {
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
+  const { login } = useAuth();
 
   const onclick = () => {
-    console.log(account, password);
+    // console.log(account, password);
+    login(account, password);
   };
 
   return (
