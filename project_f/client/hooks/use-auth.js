@@ -79,8 +79,6 @@ export function AuthProvider({ children }) {
     }
   }, [isLoading, user, pathname]);
 
-  if (isLoading || !user) return null;
-
   useEffect(() => {
     const API = "http://localhost:3005/api/users/status";
     const token = localStorage.getItem(appKey);

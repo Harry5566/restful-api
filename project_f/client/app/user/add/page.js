@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function UserAddPage() {
-  const { user, isLoading   } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -16,6 +16,7 @@ export default function UserAddPage() {
   }, [user, isLoading]);
 
   if (isLoading || !user) return null;
+
   return (
     <div className="container py-3">
       <h1>使用者註冊</h1>
