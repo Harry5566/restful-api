@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname, useRouter } from "next/navigation";
 import { useContext, createContext, useState, useEffect } from "react";
 
 const AuthContext = createContext(null);
@@ -9,6 +10,11 @@ const appKey = "reactLoginToken";
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const loginRoute = "/user/login";
+  const protectedRoutes = ["/user"];
 
   const login = async (account, password) => {
     console.log(`在 use-auth 中, ${account}, ${password}`);
@@ -66,6 +72,14 @@ export function AuthProvider({ children }) {
       alert(error.message);
     }
   };
+
+  useEffect(() => {
+    if (!isLoading && !user && protectedRoutes.includes(pathname)) {
+      router.replace(loginRoute); // 導頁
+    }
+  }, [isLoading, user, pathname]);
+
+  if (isLoading || !user) return null;
 
   useEffect(() => {
     const API = "http://localhost:3005/api/users/status";
