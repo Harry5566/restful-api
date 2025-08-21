@@ -9,6 +9,7 @@ const appKey = "reactLoginToken";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [users, setUsers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const router = useRouter();
@@ -43,7 +44,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    console.log("logout");
+    // console.log("logout");
     const API = "http://localhost:3005/api/users/logout";
     const token = localStorage.getItem(appKey);
     try {
@@ -69,6 +70,25 @@ export function AuthProvider({ children }) {
       console.log(`解析 token 失敗 ${error.message}`);
       setUser(null);
       localStorage.removeItem(appKey);
+      alert(error.message);
+    }
+  };
+
+  const list = async () => {
+    const API = "http://localhost:3005/api/users";
+    try {
+      const res = await fetch(API);
+      const result = await res.json();
+      console.log(result);
+
+      if (result.status == "success") {
+        setUsers(result.data);
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.log(`使用者列表取得: ${error.message}`);
+      setUsers([]);
       alert(error.message);
     }
   };
@@ -118,7 +138,9 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+    <AuthContext.Provider
+      value={{ user, login, logout, isLoading, list, users }}
+    >
       {children}
     </AuthContext.Provider>
   );

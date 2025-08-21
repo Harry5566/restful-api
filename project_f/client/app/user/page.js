@@ -1,12 +1,58 @@
 "use client";
 
+import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 
 export default function UserPage() {
+  const { list, users } = useAuth();
+
+  // console.log(users);
+
+  if (!users.length) {
+    return (
+      <div className="container py-3">
+        <h1>使用者列表頁</h1>
+        <h2>沒有使用者資訊</h2>
+        <div className="btn btn-primary me-1" onClick={list}>
+          取得使用者列表
+        </div>
+        <Link className="btn btn-primary" href="/">
+          回首頁
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-3">
       <h1>使用者列表頁</h1>
-      <Link className="btn btn-primary" href="/">回首頁</Link>
+      <table className="table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">account</th>
+            <th scope="col">mail</th>
+            <th scope="col">head</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users &&
+            users.map((user, index) => (
+              <tr key={`user${index}`}>
+                <th scope="row">{index + 1}</th>
+                <td>{user.account}</td>
+                <td>{user.mail}</td>
+                <td>{user.head}</td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+      <div className="btn btn-primary me-1" onClick={list}>
+        取得使用者列表
+      </div>
+      <Link className="btn btn-primary" href="/">
+        回首頁
+      </Link>
     </div>
   );
 }
