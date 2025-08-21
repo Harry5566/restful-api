@@ -79,7 +79,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await fetch(API);
       const result = await res.json();
-      console.log(result);
+      // console.log(result);
 
       if (result.status == "success") {
         setUsers(result.data);
