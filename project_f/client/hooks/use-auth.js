@@ -35,6 +35,37 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const logout = async () => {
+    console.log("logout");
+    const API = "http://localhost:3005/api/users/logout";
+    const token = localStorage.getItem(appKey);
+    try {
+      if (!token) throw new Error("Token 不存在");
+      const res = await fetch(API, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const result = await res.json();
+
+      if (result.status == "success") {
+        const token = result.data;
+        setUser(null);
+        // localStorage.setItem(appKey, token);
+        localStorage.removeItem(appKey);
+      } else {
+        // alert(result.message);
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.log(`解析 token 失敗 ${error.message}`);
+      setUser(null);
+      localStorage.removeItem(appKey);
+      alert(error.message);
+    }
+  };
+
   useEffect(() => {
     const API = "http://localhost:3005/api/users/status";
     const token = localStorage.getItem(appKey);
@@ -57,7 +88,7 @@ export function AuthProvider({ children }) {
           setUser(result.data.user);
           localStorage.setItem(appKey, token);
         } else {
-          alert(result.message);
+          // alert(result.message);
         }
       } catch (error) {
         console.log(`解析 token 失敗 ${error.message}`);
@@ -70,7 +101,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, login }}>
+    <AuthContext.Provider value={{ user, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
